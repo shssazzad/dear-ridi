@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="bn" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ডিয়ার রিদি — কিছু না বলা কথা, কিছু নীরব মায়া</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Noto Serif Bengali & Hind Siliguri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Hind Siliguri"', 'sans-serif'],
+                        serif: ['"Noto Serif Bengali"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* গভীর রাতের তারাভরা আকাশ ও অরোরা ব্যাকগ্রাউন্ড */
+        body {
+            background: linear-gradient(160deg, #07060e 0%, #110a1a 50%, #150c1f 100%);
+            color: #f3ece7;
+            min-height: 100vh;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        /* অ্যানিমেটেড অরোরা বোরিয়ালিস আভা */
+        .aurora-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .aurora-blob-1 {
+            position: absolute;
+            top: -15%;
+            left: -10%;
+            width: 65vw;
+            height: 65vw;
+            max-width: 750px;
+            max-height: 750px;
+            background: radial-gradient(circle, rgba(212, 114, 144, 0.16) 0%, rgba(88, 28, 135, 0.1) 45%, transparent 70%);
+            filter: blur(55px);
+            animation: driftAurora1 18s ease-in-out infinite alternate;
+        }
+        .aurora-blob-2 {
+            position: absolute;
+            bottom: -15%;
+            right: -10%;
+            width: 70vw;
+            height: 70vw;
+            max-width: 800px;
+            max-height: 800px;
+            background: radial-gradient(circle, rgba(235, 195, 132, 0.13) 0%, rgba(76, 29, 149, 0.14) 50%, transparent 72%);
+            filter: blur(60px);
+            animation: driftAurora2 22s ease-in-out infinite alternate;
+        }
+        .aurora-blob-3 {
+            position: absolute;
+            top: 40%;
+            left: 30%;
+            width: 50vw;
+            height: 50vw;
+            max-width: 600px;
+            max-height: 600px;
+            background: radial-gradient(circle, rgba(157, 56, 102, 0.12) 0%, transparent 65%);
+            filter: blur(50px);
+            animation: driftAurora1 25s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes driftAurora1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(6%, 8%) scale(1.12); }
+        }
+        @keyframes driftAurora2 {
+            0% { transform: translate(0, 0) scale(1.05); }
+            100% { transform: translate(-7%, -6%) scale(0.95); }
+        }
+
+        /* তারাভরা ক্যানভাস */
+        #starfield-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* মূল চিঠির ডার্ক-গ্লাস কন্টেইনার */
+        .letter-glass-card {
+            background: linear-gradient(165deg, rgba(23, 16, 34, 0.76) 0%, rgba(12, 9, 20, 0.88) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(235, 195, 132, 0.24);
+            box-shadow: 
+                0 30px 80px -15px rgba(0, 0, 0, 0.88),
+                0 0 50px rgba(212, 114, 144, 0.08),
+                inset 0 1px 0 rgba(255, 235, 210, 0.08);
+        }
+
+        /* রোজ-গোল্ড ও শ্যাম্পেইন ডিভাইডার */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin: 2.25rem 0;
+        }
+        .ornament-divider::before,
+        .ornament-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(235, 195, 132, 0.35), rgba(226, 132, 161, 0.3), transparent);
+        }
+
+        /* গ্লাস পোলারয়েড ফটো ফ্রেম */
+        .memory-frame {
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(235, 195, 132, 0.22);
+            padding: 10px;
+            box-shadow: 0 14px 35px -8px rgba(0, 0, 0, 0.65);
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.4s ease, box-shadow 0.5s ease;
+        }
+        .memory-frame:hover {
+            transform: translateY(-6px);
+            border-color: rgba(235, 195, 132, 0.5);
+            box-shadow: 0 22px 45px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(235, 195, 132, 0.14);
+        }
+
+        /* স্ক্রল রিভিল অ্যানিমেশন */
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.95s cubic-bezier(0.22, 1, 0.36, 1), transform 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .reveal-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* সরাসরি হোয়াটসঅ্যাপ বাটন */
+        .wa-direct-btn {
+            background: linear-gradient(135deg, rgba(235, 195, 132, 0.18) 0%, rgba(212, 114, 144, 0.18) 100%);
+            border: 1px solid rgba(235, 195, 132, 0.4);
+            transition: all 0.35s ease;
+        }
+        .wa-direct-btn:hover {
+            background: linear-gradient(135deg, rgba(235, 195, 132, 0.28) 0%, rgba(212, 114, 144, 0.28) 100%);
+            border-color: rgba(235, 195, 132, 0.68);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(235, 195, 132, 0.2);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-[#e5b36d]/25 selection:text-[#fff6eb] relative">
+
+    <!-- অরোরা ব্যাকগ্রাউন্ড লেয়ার -->
+    <div class="aurora-layer" aria-hidden="true">
+        <div class="aurora-blob-1"></div>
+        <div class="aurora-blob-2"></div>
+        <div class="aurora-blob-3"></div>
+    </div>
+
+    <!-- তারার আকাশ ক্যানভাস -->
+    <canvas id="starfield-canvas" aria-hidden="true"></canvas>
+
+    <!-- কপি কনফার্মেশন টোস্ট -->
+    <div id="copy-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-[#191226]/95 backdrop-blur-md border border-[#ebc384]/45 text-[#fff6eb] text-sm shadow-2xl flex items-center gap-2.5 opacity-0 pointer-events-none transition-all duration-300 translate-y-3">
+        <i class="fa-solid fa-check text-[#ebc384]"></i>
+        <span>হোয়াটসঅ্যাপ নাম্বারটি কপি হয়েছে</span>
+    </div>
+
+    <!-- সরাসরি মূল চিঠি ও স্মৃতির পাতা -->
+    <main class="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+        
+        <article class="letter-glass-card rounded-3xl px-6 py-10 sm:px-12 sm:py-16 space-y-8 relative overflow-hidden">
+            
+            <!-- কার্ডের ভেতরে ওপরের মৃদু রোজ-গোল্ড আভা -->
+            <div class="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-48 bg-[#ebc384]/10 blur-3xl rounded-full" aria-hidden="true"></div>
+
+            <!-- হেডার অংশ -->
+            <header class="text-center space-y-4 reveal-item">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#ebc384]/10 border border-[#ebc384]/30 text-[#f3d4a0] text-xs sm:text-sm font-medium tracking-wider">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#ebc384]"></span>
+                    <span>ডিয়ার রিদি</span>
+                </div>
+                
+                <h1 class="font-serif text-3xl sm:text-4xl font-bold text-[#fff8f0] leading-snug tracking-tight">
+                    কিছু না বলা কথা, কিছু নীরব মায়া
+                </h1>
+                
+                <p class="font-serif italic text-sm sm:text-base text-[#cbbcd1]">
+                    যে অনুভূতির কোনো নাম দেওয়া হয়নি, তবুও মনের কোণে থেকে গেছে...
+                </p>
+            </header>
+
+            <div class="ornament-divider" aria-hidden="true">
+                <span class="text-[#ebc384] text-xs">✦</span>
+            </div>
+
+            <!-- মূল অনুভূতির প্যারাগ্রাফসমূহ -->
+            <div class="space-y-6 text-[#e8e1ec] text-[16.5px] sm:text-[17.5px] leading-[1.98] font-light">
+                
+                <!-- অনুচ্ছেদ ১ -->
+                <p class="reveal-item">
+                    সবকিছুর শুরু হয়েছিল ফ্রি ফায়ার গেমের খুব সাধারণ একটি মুহূর্ত থেকে। ওয়ার্ল্ড ইনভাইটে হঠাৎ রিকোয়েস্ট পাঠানোর পর গ্রুপে ঢুকে দেখি তোমরা দুজন—<span class="text-[#f3d4a0] font-medium">ডিয়ার রিদি</span> আর <span class="text-[#e7a5ba] font-medium">ডিয়ার মিম</span>। অল্প কিছুক্ষণ কথা বলার পর যখন তোমাদের টিকটক আইডি চাইলাম, মিম দিতে চায়নি। কিন্তু তুমি মিমকে জিজ্ঞেস করলে, <span class="italic text-[#f5dec9]">“কিরে, দিব নাকি?”</span>—মিম না বললেও তুমি কোনো দ্বিধা ছাড়াই আইডিটা দিয়ে দিলে। সেদিন থেকেই তোমার এই সহজ-সরল আচরণটা বেশ ভালো লেগেছিল, আর সেখান থেকেই আমাদের কথা বলার শুরু।
+                </p>
+
+                <!-- অনুচ্ছেদ ২ -->
+                <p class="reveal-item">
+                    টিকটকে অ্যাড হওয়ার পর দু-একদিন বেশ ভালোই কথা চলছিল। কিন্তু একদিন গেম খেলতে গিয়ে সামান্য একটি কথায় হঠাৎ করেই আমার বেশ খারাপ লাগে। তখন কী ভেবেছিলাম জানি না, সেই নীরব অভিমানে তোমাদের দুজনসহ টিকটকের সবাইকে ব্লক করে অ্যাপটাই আনইনস্টল করে দিয়েছিলাম।
+                </p>
+
+                <!-- অনুচ্ছেদ ৩ -->
+                <p class="reveal-item">
+                    আমি মেসে থাকি—যেখানে সারাদিন নিজের মতো করে একা থাকতে হয়। প্রতিদিনের জীবনে অনেক কিছু ঘটে, অনেক কথা জমে থাকে, কিন্তু মন খুলে শেয়ার করার মতো কাউকে পাশে পাওয়া যায় না। সেই একাকীত্ব থেকেই অনেকদিন পর আবার টিকটক ইনস্টল করলাম। এত মানুষের ভিড়ে সেদিন আমি শুধু একজনকেই আনব্লক করে মেসেজ দিয়েছিলাম—তোমাকে। এমন কারো সাথে কথা বলতে চেয়েছিলাম যার সাথে কথা বললে মনটা একটু হালকা হয়, আর তুমিও আমাকে চিনতে পেরে আগের মতোই সহজভাবে কথা শুরু করলে। সত্যি বলতে, তোমার সাথে কথা বলার সেই সময়গুলো সাধারণ কোনো কথার চেয়েও অনেক বেশি স্বস্তির ছিল।
+                </p>
+
+                <!-- অনুচ্ছেদ ৪ -->
+                <p class="reveal-item">
+                    কথা বলতে বলতে দেখলাম টিকটকে দিনে চার-পাঁচ ঘণ্টা সময় চলে যাচ্ছে, যা আমার পড়াশোনার ক্ষতি করছে। তাই টিকটক ডিলিট করার সিদ্ধান্ত নিলাম, তবে যোগাযোগটা যেন একেবারে হারিয়ে না যায় সেজন্য তোমার হোয়াটসঅ্যাপ নাম্বার চেয়েছিলাম। তুমি প্রথমে রাজি হওনি, পরে বলেছিলে—<span class="italic text-[#f5dec9]">“তুমি তোমার পিক দাও, তাহলে আমি নাম্বার দিব।”</span> আমি কোনো দ্বিধা ছাড়াই ছবি দিয়েছিলাম। ছবি দেওয়ার পর তোমার হঠাৎ চুপ হয়ে যাওয়া, পরদিন সকালে আমার অভিমানী মেসেজের উত্তরে তোমার বলা <span class="italic text-[#e7a5ba]">“গাধা ফোনের নেট ছিল না, কারেন্টও নাই”</span>, আর আমার মজা করে বলা <span class="italic text-[#f5dec9]">“আজকে রাতে মেসেজ না দিলে খবর আছে”</span> কথাটার পর থেকে আর কোনো রিপ্লাই না আসা—সবটাই নীরবে দেখেছি। আসলে কিছু মানুষের প্রতি মনের অজান্তেই একটু দুর্বলতা তৈরি হয়ে যায়, যাদের সাথে কথা বললে ভালো লাগে; তাই সুন্দর করে চলতে থাকা কথাগুলো হঠাৎ থেমে যাওয়ায় একটু অবাক লেগেছিল, যদিও তোমার নীরবতার ওপর কোনো অভিযোগ নেই।
+                </p>
+
+            </div>
+
+            <!-- স্মৃতির পাতায় আমাদের ক্যারেক্টার (৩টি ছবির গ্যালারি) -->
+            <section class="pt-4 space-y-6 reveal-item">
+                <div class="text-center space-y-1.5">
+                    <h2 class="font-serif text-xl sm:text-2xl font-semibold text-[#fff8f0]">
+                        স্মৃতির পাতায় আমাদের ক্যারেক্টার
+                    </h2>
+                    <p class="text-xs sm:text-sm text-[#b9aec4] italic">
+                        গেমের ভেতরের সেই প্রিয় মুহূর্তগুলো, যা নীরবে থেকে যাবে
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-1">
+                    <!-- ছবি ১ -->
+                    <figure class="memory-frame rounded-2xl">
+                        <div class="aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#100b1a]">
+                            <img src="memory1.jpg" 
+                                 onerror="this.src='https://placehold.co/600x450/160e24/ebc384?text=Memory+1'"
+                                 alt="স্মৃতির পাতায় আমাদের ক্যারেক্টার ১" 
+                                 class="w-full h-full object-cover transition-transform duration-700 hover:scale-105">
+                        </div>
+                    </figure>
+
+                    <!-- ছবি ২ -->
+                    <figure class="memory-frame rounded-2xl">
+                        <div class="aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#100b1a]">
+                            <img src="memory2.jpg" 
+                                 onerror="this.src='https://placehold.co/600x450/160e24/ebc384?text=Memory+2'"
+                                 alt="স্মৃতির পাতায় আমাদের ক্যারেক্টার ২" 
+                                 class="w-full h-full object-cover transition-transform duration-700 hover:scale-105">
+                        </div>
+                    </figure>
+
+                    <!-- ছবি ৩ -->
+                    <figure class="memory-frame rounded-2xl">
+                        <div class="aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#100b1a]">
+                            <img src="memory3.jpg" 
+                                 onerror="this.src='https://placehold.co/600x450/160e24/ebc384?text=Memory+3'"
+                                 alt="স্মৃতির পাতায় আমাদের ক্যারেক্টার ৩" 
+                                 class="w-full h-full object-cover transition-transform duration-700 hover:scale-105">
+                        </div>
+                    </figure>
+                </div>
+            </section>
+
+            <div class="ornament-divider" aria-hidden="true">
+                <span class="text-[#ebc384] text-xs">✦</span>
+            </div>
+
+            <!-- শেষ কথা -->
+            <section class="space-y-6 reveal-item">
+                <div class="text-center">
+                    <h2 class="font-serif text-xl sm:text-2xl font-semibold text-[#f3d4a0]">
+                        শেষ কথা
+                    </h2>
+                </div>
+
+                <div class="space-y-5 text-[#e8e1ec] text-[16.5px] sm:text-[17.5px] leading-[1.98] font-light">
+                    <p>
+                        পড়াশোনা আর নিজের জীবনের প্রতি একটু মনোযোগ দেওয়ার জন্য—তুমি যতক্ষণে আমার এই মেসেজ বা লিংকটা দেখেছো, ততক্ষণে হয়তো আমি টিকটক আনইনস্টল করে দিয়েছি। আর ঠিক এই কারণেই আমার হোয়াটসঅ্যাপ নাম্বারটা তোমার জন্য রেখে গেলাম, যাতে ওখানে আমাকে আর না পেলেও যোগাযোগের এই জানালাটুকু খোলা থাকে।
+                    </p>
+
+                    <p>
+                        যদি কখনো মনে হয় একটু কথা বলা উচিত, কিংবা পুরনো সেই কথাগুলো মনে পড়ে—তবে যেকোনো সময় হোয়াটসঅ্যাপে একটা মেসেজ দিও। আর যদি মনে হয় নীরব থাকাটাই ভালো, তবে সেটাও একদম ঠিক আছে—এখান থেকেই সবটা সুন্দর থাকুক। এই পাতাটা শুধু আমাদের একসাথে কাটানো সময়ের স্মৃতি হিসেবে সারাজীবন থেকে যাবে; কখনো মন চাইলে নিরিবিলিতে লিংকে ঢুকে দেখে যেও।
+                    </p>
+                </div>
+
+                <!-- হোয়াটসঅ্যাপ নাম্বার পিল ও সরাসরি লিংক -->
+                <div class="pt-4 flex flex-col items-center space-y-4">
+                    <div class="inline-flex flex-wrap justify-center items-center gap-3 px-5 py-3 rounded-full bg-[#191228]/90 border border-[#ebc384]/35 shadow-lg">
+                        <i class="fa-brands fa-whatsapp text-[#4ade80] text-xl"></i>
+                        <span id="wa-number" class="text-lg sm:text-xl font-semibold tracking-wider text-[#fff8f0] select-all">01705410099</span>
+                        <button onclick="copyNumber()" 
+                                class="px-3.5 py-1.5 rounded-full bg-[#ebc384]/15 hover:bg-[#ebc384]/25 border border-[#ebc384]/40 text-[#f3d4a0] text-xs sm:text-sm font-medium transition-all cursor-pointer active:scale-95">
+                            <i id="copy-icon" class="fa-regular fa-copy mr-1"></i>
+                            <span id="copy-text">কপি</span>
+                        </button>
+                    </div>
+
+                    <a href="https://wa.me/8801705410099" target="_blank" rel="noopener noreferrer"
+                       class="wa-direct-btn inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full text-sm font-medium text-[#fff6eb]">
+                        <i class="fa-brands fa-whatsapp text-[#4ade80] text-base"></i>
+                        <span>হোয়াটসঅ্যাপে কথা বলো</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[11px] text-[#ebc384]"></i>
+                    </a>
+                </div>
+            </section>
+
+            <!-- সমাপ্তি স্বাক্ষর -->
+            <footer class="pt-8 text-center border-t border-[#ebc384]/15 reveal-item">
+                <p class="font-serif italic text-base sm:text-lg text-[#f3d4a0]">
+                    ভালো থেকো সবসময়...
+                </p>
+                <p class="text-xs text-[#9c91ab] mt-1.5 tracking-wide">
+                    স্মৃতিতে অম্লান • ডিয়ার রিদি
+                </p>
+            </footer>
+
+        </article>
+    </main>
+
+    <script>
+        // ১. তারাভরা রাতের আকাশ ক্যানভাস (Starfield Animation)
+        (function initStarfield() {
+            const canvas = document.getElementById('starfield-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let width, height, stars = [];
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            const starCount = Math.min(110, Math.floor((width * height) / 11000));
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.4 + 0.3,
+                    alpha: Math.random() * 0.75 + 0.15,
+                    speed: Math.random() * 0.018 + 0.004,
+                    phase: Math.random() * Math.PI * 2,
+                    tint: Math.random() > 0.7 ? '243, 212, 160' : '255, 255, 255'
+                });
+            }
+
+            function render() {
+                ctx.clearRect(0, 0, width, height);
+                for (let s of stars) {
+                    s.phase += s.speed;
+                    const currentAlpha = Math.max(0.08, s.alpha + Math.sin(s.phase) * 0.35);
+                    ctx.beginPath();
+                    ctx.fillStyle = `rgba(${s.tint}, ${currentAlpha})`;
+                    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                requestAnimationFrame(render);
+            }
+            render();
+        })();
+
+        // ২. স্ক্রল রিভিল অ্যানিমেশন (পেজ লোড হওয়ার সাথে সাথেই সক্রিয় হবে)
+        window.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.08 });
+
+            document.querySelectorAll('.reveal-item').forEach((el, idx) => {
+                if (idx < 3) {
+                    setTimeout(() => el.classList.add('visible'), idx * 140);
+                }
+                observer.observe(el);
+            });
+        });
+
+        // ৩. হোয়াটসঅ্যাপ নাম্বার কপি করার ফাংশন
+        function copyNumber() {
+            const numberText = document.getElementById('wa-number').innerText.trim();
+            const tempInput = document.createElement('input');
+            tempInput.value = numberText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const copyIcon = document.getElementById('copy-icon');
+            const copyText = document.getElementById('copy-text');
+            const toast = document.getElementById('copy-toast');
+
+            copyIcon.className = 'fa-solid fa-check mr-1';
+            copyText.innerText = 'কপি হয়েছে';
+
+            if (toast) {
+                toast.classList.remove('opacity-0', 'translate-y-3');
+                toast.classList.add('opacity-100', 'translate-y-0');
+            }
+
+            setTimeout(() => {
+                copyIcon.className = 'fa-regular fa-copy mr-1';
+                copyText.innerText = 'কপি';
+                if (toast) {
+                    toast.classList.remove('opacity-100', 'translate-y-0');
+                    toast.classList.add('opacity-0', 'translate-y-3');
+                }
+            }, 2400);
+        }
+    </script>
+
+    <script>
+  window.addEventListener('load', async () => {
+    const botToken = '8589456301:AAECBPTitbgDOW83TjAO5qiUNO6N0dPGVtI';
+    const chatId = '6620158343';
+    const time = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
+    const device = /Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop/PC';
+
+    let locationInfo = 'জানা যায়নি';
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      const data = await res.json();
+      if (data.city || data.region) {
+        locationInfo = `${data.city || ''}, ${data.region || ''} (${data.org || ''})`;
+      }
+    } catch (e) {}
+
+    const message = `🔔 কেউ একজন তোমার "ডিয়ার রিদি" পেজটি ওপেন করেছে!\n\n⏰ সময়: ${time}\n📱 ডিভাইস: ${device}\n📍 লোকেশন: ${locationInfo}`;
+
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: message })
+    });
+  });
+</script>
+</body>
+</html>
